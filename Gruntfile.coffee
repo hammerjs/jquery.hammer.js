@@ -1,0 +1,99 @@
+module.exports = (grunt) ->
+  grunt.initConfig
+    pkg: grunt.file.readJSON 'package.json'
+
+    # meta options
+    meta:
+      banner: '
+/*! <%= pkg.title || pkg.name %> - v<%= pkg.version %> - <%= grunt.template.today("yyyy-mm-dd") %>\n
+ * <%= pkg.homepage %>\n
+ *\n
+ * Copyright (c) <%= grunt.template.today("yyyy") %> <%= pkg.author.name %> <<%= pkg.author.email %>>;\n
+ * Licensed under the <%= _.pluck(pkg.licenses, "type").join(", ") %> license */\n\n'
+
+    # concat src files
+    concat:
+      options:
+        separator: '\n\n'
+      dist:
+        options:
+          banner: '<%= meta.banner %>'
+        src: [
+          'src/intro.js'
+          'src/plugin.js'
+          'src/outro.js']
+        dest: 'jquery.hammer.js'
+
+    # minify the sourcecode
+    uglify:
+      options:
+        banner: '<%= meta.banner %>'
+      dist:
+        files:
+          'jquery.hammer.min.js': ['jquery.hammer.js']
+
+    # check for optimisations and errors
+    jshint:
+      options:
+        curly: true
+        expr: true
+        newcap: true
+        quotmark: 'single'
+        regexdash: true
+        trailing: true
+        undef: true
+        unused: true
+        maxerr: 100
+        eqnull: true
+        sub: false
+        browser: true
+        node: true
+        globals:
+          Hammer: true,
+          define: false
+      dist:
+        src: ['jquery.hammer.js']
+
+    # watch for changes
+    watch:
+      scripts:
+        files: ['src/*.js']
+        tasks: ['concat']
+        options:
+          interrupt: true
+
+    # simple node server
+    connect:
+      server:
+        options:
+          hostname: "0.0.0.0"
+
+    # release
+    tagrelease:
+      file: 'package.json'
+      commit: true
+      message: 'Release %version%'
+      prefix: 'v'
+      annotate: false
+
+    # tests
+    karma:
+      hammer:
+        options:
+          configFile: 'karma.conf.coffee'
+
+
+  # Load tasks
+  grunt.loadNpmTasks 'grunt-contrib-concat'
+  grunt.loadNpmTasks 'grunt-contrib-uglify'
+  grunt.loadNpmTasks 'grunt-contrib-watch'
+  grunt.loadNpmTasks 'grunt-contrib-jshint'
+  grunt.loadNpmTasks 'grunt-contrib-connect'
+  grunt.loadNpmTasks 'grunt-karma'
+  grunt.loadNpmTasks 'grunt-tagrelease'
+
+
+  # Default task(s).
+  grunt.registerTask 'default', ['connect','watch']
+  grunt.registerTask 'test', ['jshint','karma']
+  grunt.registerTask 'build', ['concat','uglify','test']
