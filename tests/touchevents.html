@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Basic Test Suite</title>
+  <!-- Load local QUnit. -->
+  <link rel="stylesheet" href="../node_modules/hammerjs/tests/libs/qunit.css" media="screen">
+  <script src="../node_modules/hammerjs/tests/libs/jquery.js"></script>
+  <script src="../node_modules/hammerjs/tests/libs/qunit.js"></script>
+  <script src="../node_modules/hammerjs/tests/libs/underscore.js"></script>
+  <script src="../node_modules/faketouches/faketouches.js"></script>
+  <script src="../node_modules/hammerjs/hammer.js"></script>
+  <script src="../node_modules/hammerjs/plugins/hammer.showtouches.js"></script>
+  <script src="../jquery.hammer.js"></script>
+</head>
+<body>
+
+
+    <script>
+        Hammer.HAS_POINTEREVENTS = false;
+        Hammer.HAS_TOUCHEVENTS = true;
+
+        var set_faketouches_type = FakeTouches.TOUCH_EVENTS;
+    </script>
+
+    <div id="toucharea" style="width:500px;height:500px;"></div>
+  <div id="qunit"></div>
+
+    <script src="../node_modules/hammerjs/tests/gestures.js"></script>
+
+</body>
+</html>
