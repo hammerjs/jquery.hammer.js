@@ -40,7 +40,7 @@
     "faketouches": "0.0.x",
     "grunt-saucelabs": "4.1.x",
     "underscore": "~1.5.2",
-    "hammerjs": "1.0.*"
+    "hammerjs": "git://github.com/EightMedia/hammer.js.git"
   },
   "main": "jquery.hammer.js",
   "engines": {
