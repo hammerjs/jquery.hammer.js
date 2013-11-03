@@ -27,6 +27,8 @@ module.exports = (grunt) ->
     # minify the sourcecode
     uglify:
       options:
+        report: 'gzip'
+        sourceMap: 'jquery.hammer.min.map'
         banner: '<%= meta.banner %>'
       dist:
         files:
@@ -115,3 +117,4 @@ module.exports = (grunt) ->
   grunt.registerTask 'default', ['connect','watch']
   grunt.registerTask 'test', ['jshint','connect','saucelabs-qunit']
   grunt.registerTask 'build', ['concat','uglify','test']
+  grunt.registerTask 'build-simple', ['concat','uglify','jshint']
