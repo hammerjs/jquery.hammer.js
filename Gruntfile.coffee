@@ -9,28 +9,38 @@ module.exports = (grunt) ->
  * <%= pkg.homepage %>\n
  *\n
  * Copyright (c) <%= grunt.template.today("yyyy") %> <%= pkg.author.name %> <<%= pkg.author.email %>>;\n
- * Licensed under the <%= _.pluck(pkg.licenses, "type").join(", ") %> license */\n\n'
+ * Licensed under the <%= _.pluck(pkg.licenses, "type").join(", ") %> license */' 
 
     # concat src files
     concat:
       options:
         separator: '\n\n'
-      dist:
-        options:
-          banner: '<%= meta.banner %>'
+        banner: '<%= meta.banner %>'
+      standalone:
         src: [
           'src/intro.js'
           'src/plugin.js'
           'src/outro.js']
+        dest: 'jquery.hammer-standalone.js'
+      full:
+        src: [
+          'hammer.js/hammer.js'
+          'jquery.hammer-standalone.js']
         dest: 'jquery.hammer.js'
 
     # minify the sourcecode
     uglify:
       options:
         report: 'gzip'
-        sourceMap: 'jquery.hammer.min.map'
         banner: '<%= meta.banner %>'
-      dist:
+      standalone:
+        options:          
+          sourceMap: 'jquery.hammer-standalone.min.map'
+        files:
+          'jquery.hammer-standalone.min.js': ['jquery.hammer-standalone.js']
+      full:
+        options:          
+          sourceMap: 'jquery.hammer.min.map'
         files:
           'jquery.hammer.min.js': ['jquery.hammer.js']
 
@@ -54,7 +64,7 @@ module.exports = (grunt) ->
           Hammer: true,
           define: false
       dist:
-        src: ['jquery.hammer.js']
+        src: ['jquery.hammer-standalone.js']
 
     # watch for changes
     watch:
