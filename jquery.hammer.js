@@ -2,10 +2,10 @@
  * http://eightmedia.github.com/hammer.js
  *
  * Copyright (c) 2014 Jorik Tangelder <j.tangelder@gmail.com>;
- * Licensed under the MIT license *//*! Hammer.JS - v1.0.6dev - 2013-12-14
+ * Licensed under the MIT license *//*! Hammer.JS - v1.0.6 - 2014-01-02
  * http://eightmedia.github.com/hammer.js
  *
- * Copyright (c) 2013 Jorik Tangelder <j.tangelder@gmail.com>;
+ * Copyright (c) 2014 Jorik Tangelder <j.tangelder@gmail.com>;
  * Licensed under the MIT license */
 
 (function(window, undefined) {
@@ -634,7 +634,7 @@ Hammer.event = {
     }
     // make fake touchlist from mouse position
     else {
-      ev.indentifier = 1;
+      ev.identifier = 1;
       return [ev];
     }
   },
