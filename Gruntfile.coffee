@@ -79,38 +79,10 @@ module.exports = (grunt) ->
       server:
         options:
           hostname: "0.0.0.0"
-
-    # release
-    tagrelease:
-      file: 'package.json'
-      commit: true
-      message: 'Release %version%'
-      prefix: 'v'
-      annotate: false
-
+    
     # tests
-    'saucelabs-qunit':
-      all:
-        options:
-          username: 'hammerjs-ci'
-          key: '2ede6d02-65b3-4ba9-aec8-44a787af0c81'
-          build: process.env.TRAVIS_JOB_ID || 'dev'
-          concurrency: 3
-
-          urls: [
-            'http://0.0.0.0:8000/tests/utils.html',
-            'http://0.0.0.0:8000/tests/mouseevents.html',
-            'http://0.0.0.0:8000/tests/mousetouchevents.html',
-            'http://0.0.0.0:8000/tests/touchevents.html',
-            'http://0.0.0.0:8000/tests/pointerevents_mouse.html',
-            'http://0.0.0.0:8000/tests/pointerevents_touch.html'
-          ]
-          browsers: [
-            { browserName: 'chrome' }
-            { browserName: 'firefox' }
-            { browserName: 'internet explorer', platform: 'Windows 7', version: '9' }
-            { browserName: 'internet explorer', platform: 'Windows 8', version: '10'}
-          ]
+    qunit:
+      all: ['tests/**/*.html']
 
 
   # Load tasks
@@ -119,12 +91,11 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks 'grunt-contrib-watch'
   grunt.loadNpmTasks 'grunt-contrib-jshint'
   grunt.loadNpmTasks 'grunt-contrib-connect'
-  grunt.loadNpmTasks 'grunt-saucelabs'
-  grunt.loadNpmTasks 'grunt-tagrelease'
+  grunt.loadNpmTasks 'grunt-contrib-qunit'
 
 
   # Default task(s).
   grunt.registerTask 'default', ['connect','watch']
-  grunt.registerTask 'test', ['jshint','connect','saucelabs-qunit']
+  grunt.registerTask 'test', ['jshint','connect','qunit']
   grunt.registerTask 'build', ['concat','uglify','test']
   grunt.registerTask 'build-simple', ['concat','uglify','jshint']
