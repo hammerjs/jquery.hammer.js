@@ -1,4 +1,4 @@
-/*! jQuery plugin for Hammer.JS - v1.0.0 - 2014-01-02
+/*! jQuery plugin for Hammer.JS - v1.0.0 - 2014-01-13
  * http://eightmedia.github.com/hammer.js
  *
  * Copyright (c) 2014 Jorik Tangelder <j.tangelder@gmail.com>;
@@ -104,8 +104,8 @@ function setup(Hammer, $) {
   // some AMD build optimizers, like r.js, check for specific condition patterns like the following:
   if(typeof define == 'function' && typeof define.amd == 'object' && define.amd) {
     // define as an anonymous module
-    define(['hammer', 'jquery'], setup);
-  
+    define(['hammerjs', 'jquery'], setup);
+
   }
   else {
     setup(window.Hammer, window.jQuery || window.Zepto);
