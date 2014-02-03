@@ -21,12 +21,12 @@ module.exports = (grunt) ->
           'src/intro.js'
           'src/plugin.js'
           'src/outro.js']
-        dest: 'jquery.hammer-standalone.js'
+        dest: 'jquery.hammer.js'
       full:
         src: [
           'hammer.js/hammer.js'
-          'jquery.hammer-standalone.js']
-        dest: 'jquery.hammer.js'
+          'jquery.hammer.js']
+        dest: 'jquery.hammer-full.js'
 
     # minify the sourcecode
     uglify:
@@ -35,14 +35,14 @@ module.exports = (grunt) ->
         banner: '<%= meta.banner %>'
       standalone:
         options:          
-          sourceMap: 'jquery.hammer-standalone.min.map'
-        files:
-          'jquery.hammer-standalone.min.js': ['jquery.hammer-standalone.js']
-      full:
-        options:          
           sourceMap: 'jquery.hammer.min.map'
         files:
           'jquery.hammer.min.js': ['jquery.hammer.js']
+      full:
+        options:          
+          sourceMap: 'jquery.hammer-full.min.map'
+        files:
+          'jquery.hammer-full.min.js': ['jquery.hammer-full.js']
 
     # check for optimisations and errors
     jshint:
@@ -64,7 +64,7 @@ module.exports = (grunt) ->
           Hammer: true,
           define: false
       dist:
-        src: ['jquery.hammer-standalone.js']
+        src: ['jquery.hammer.js']
 
     # watch for changes
     watch:

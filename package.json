@@ -26,6 +26,9 @@
   "bugs": {
     "url": "https://github.com/EightMedia/jquery.hammer.js/issues"
   },
+  "dependencies": {
+    "hammerjs": "1.0.x"
+  },
   "devDependencies": {
     "grunt": "0.4.x",
     "grunt-contrib-connect": "0.5.x",
