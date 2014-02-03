@@ -1,4 +1,4 @@
-/*! jQuery plugin for Hammer.JS - v1.0.0 - 2014-02-03
+/*! jQuery plugin for Hammer.JS - v1.0.1 - 2014-02-03
  * http://eightmedia.github.com/hammer.js
  *
  * Copyright (c) 2014 Jorik Tangelder <j.tangelder@gmail.com>;
