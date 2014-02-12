@@ -1364,31 +1364,21 @@ Hammer.gestures.Transform = {
   }
 };
 
-  // Based off Lo-Dash's excellent UMD wrapper (slightly modified) - https://github.com/bestiejs/lodash/blob/master/lodash.js#L5515-L5543
-  // some AMD build optimizers, like r.js, check for specific condition patterns like the following:
-  if(typeof define == 'function' && typeof define.amd == 'object' && define.amd) {
-    // define as an anonymous module
-    define(function() {
-      return Hammer;
-    });
-    // check for `exports` after `define` in case a build optimizer adds an `exports` object
-  }
-  else if(typeof module === 'object' && typeof module.exports === 'object') {
-    module.exports = Hammer;
-  }
-  else {
-    window.Hammer = Hammer;
-  }
+  window.Hammer = Hammer;
 })(this);
 
 /*! jQuery plugin for Hammer.JS - v1.0.1 - 2014-02-03
  * http://eightmedia.github.com/hammer.js
  *
  * Copyright (c) 2014 Jorik Tangelder <j.tangelder@gmail.com>;
- * Licensed under the MIT license */(function(window, undefined) {
+ * Licensed under the MIT license */
+
+ (function(window, undefined) {
   'use strict';
 
-function setup(Hammer, $) {
+function setup($) {
+  var Hammer = window.Hammer;
+
   /**
    * bind dom events
    * this overwrites addEventListener
@@ -1475,7 +1465,7 @@ function setup(Hammer, $) {
       if(!inst) {
         el.data('hammer', new Hammer(this, options || {}));
       }
-      // change the options
+      // change the optionss
       else if(inst && options) {
         Hammer.utils.extend(inst.options, options);
       }
@@ -1487,8 +1477,8 @@ function setup(Hammer, $) {
   // some AMD build optimizers, like r.js, check for specific condition patterns like the following:
   if(typeof define == 'function' && typeof define.amd == 'object' && define.amd) {
     // define as an anonymous module
-    define(['hammerjs', 'jquery'], setup);
-  
+    define(['jquery'], setup);
+
   }
   else {
     setup(window.Hammer, window.jQuery || window.Zepto);
