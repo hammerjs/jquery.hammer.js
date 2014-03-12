@@ -1,4 +1,4 @@
-function setup(Hammer, $) {
+function setupPlugin(Hammer, $) {
   /**
    * bind dom events
    * this overwrites addEventListener

@@ -1,11 +1,12 @@
-/*! jQuery plugin for Hammer.JS - v1.0.1 - 2014-02-03
+/*! jQuery plugin for Hammer.JS - v1.0.2 - 2014-03-12
  * http://eightmedia.github.com/hammer.js
  *
  * Copyright (c) 2014 Jorik Tangelder <j.tangelder@gmail.com>;
- * Licensed under the MIT license */(function(window, undefined) {
+ * Licensed under the MIT license */
+(function(window, undefined) {
   'use strict';
 
-function setup(Hammer, $) {
+function setupPlugin(Hammer, $) {
   /**
    * bind dom events
    * this overwrites addEventListener
@@ -100,14 +101,13 @@ function setup(Hammer, $) {
   };
 }
 
-  // Based off Lo-Dash's excellent UMD wrapper (slightly modified) - https://github.com/bestiejs/lodash/blob/master/lodash.js#L5515-L5543
-  // some AMD build optimizers, like r.js, check for specific condition patterns like the following:
-  if(typeof define == 'function' && typeof define.amd == 'object' && define.amd) {
-    // define as an anonymous module
-    define(['hammerjs', 'jquery'], setup);
-  
-  }
-  else {
-    setup(window.Hammer, window.jQuery || window.Zepto);
-  }
-})(this);
+// AMD
+if(typeof define == 'function' && define.amd) {
+  define(['hammerjs', 'jquery'], setupPlugin);
+}
+
+else {
+  setupPlugin(window.Hammer, window.jQuery || window.Zepto);
+}
+
+})(window);
