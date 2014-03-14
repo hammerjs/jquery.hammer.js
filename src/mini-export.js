@@ -1,8 +1,8 @@
 // AMD
 if(typeof define == 'function' && define.amd) {
-  define(function () {
+  define(['jquery'], function ($) {
 
-  	return setupPlugin(window.Hammer, window.jQuery || window.Zepto);
+  	return setupPlugin(window.Hammer, $);
   });
 }
 
