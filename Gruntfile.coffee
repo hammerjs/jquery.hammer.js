@@ -38,7 +38,7 @@ module.exports = (grunt) ->
           'src/hammer-export.js' # simple export
 
           'src/plugin.js'
-          'src/export.js'
+          'src/mini-export.js'
           'src/jquery.hammer.suffix']
         dest: 'jquery.hammer-full.js'
 
