@@ -20,7 +20,7 @@ module.exports = (grunt) ->
         src: [
           'src/jquery.hammer.prefix'
           'src/plugin.js'
-          'src/export.js'
+          'src/standalone-export.js'
           'src/jquery.hammer.suffix']
         dest: 'jquery.hammer.js'
       full:
@@ -38,7 +38,7 @@ module.exports = (grunt) ->
           'src/hammer-export.js' # simple export
 
           'src/plugin.js'
-          'src/mini-export.js'
+          'src/full-export.js'
           'src/jquery.hammer.suffix']
         dest: 'jquery.hammer-full.js'
 

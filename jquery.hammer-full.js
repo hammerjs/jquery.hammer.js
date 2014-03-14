@@ -1,4 +1,4 @@
-/*! jQuery plugin for Hammer.JS - v1.0.3 - 2014-03-13
+/*! jQuery plugin for Hammer.JS - v1.0.3 - 2014-03-14
  * http://eightmedia.github.com/hammer.js
  *
  * Copyright (c) 2014 Jorik Tangelder <j.tangelder@gmail.com>;
@@ -1569,11 +1569,14 @@ function setupPlugin(Hammer, $) {
 
 // AMD
 if(typeof define == 'function' && define.amd) {
-  define(['hammerjs', 'jquery'], setupPlugin);
+  define(['jquery'], function ($) {
+  	return setupPlugin(window.Hammer, $);
+  });
 }
 
 else {
   setupPlugin(window.Hammer, window.jQuery || window.Zepto);
 }
+
 
 })(window);
