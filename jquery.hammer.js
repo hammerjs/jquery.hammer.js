@@ -15,28 +15,17 @@ function setupPlugin(Hammer, $) {
    * @param   {Function}      handler
    */
   Hammer.event.bindDom = function(element, eventTypes, handler) {
-    $(element).on(eventTypes, function(ev) {
-      var data = ev.originalEvent || ev;
+    $(element).on(eventTypes, function($ev) {
+      var data = $ev.originalEvent || $ev;
 
-      if(data.pageX === undefined) {
-        data.pageX = ev.pageX;
-        data.pageY = ev.pageY;
-      }
-
-      if(!data.target) {
-        data.target = ev.target;
-      }
-
+      var props = ['pageX','pageY','target','preventDefault','stopPropagation'];
+      Hammer.utils.each(props, function(prop) {
+        data[prop] = data[prop] || $ev[prop];
+      });
+      
+      // for IE
       if(data.which === undefined) {
         data.which = data.button;
-      }
-
-      if(!data.preventDefault) {
-        data.preventDefault = ev.preventDefault;
-      }
-
-      if(!data.stopPropagation) {
-        data.stopPropagation = ev.stopPropagation;
       }
 
       handler.call(this, data);
@@ -44,18 +33,16 @@ function setupPlugin(Hammer, $) {
   };
 
   /**
-   * the methods are called by the instance, but with the jquery plugin
+   * the methods on/off are called by the instance, but with the jquery plugin
    * we use the jquery event methods instead.
    * @this    {Hammer.Instance}
    * @return  {jQuery}
    */
-  Hammer.Instance.prototype.on = function(types, handler) {
-    return $(this.element).on(types, handler);
-  };
-  Hammer.Instance.prototype.off = function(types, handler) {
-    return $(this.element).off(types, handler);
-  };
-
+  Hammer.utils.each(['on','off'], function(method) {
+    Hammer.Instance.prototype[method] = function(types, handler) {
+      return $(this.element)[method](types, handler);
+    };
+  });
 
   /**
    * trigger events
@@ -89,6 +76,7 @@ function setupPlugin(Hammer, $) {
     return this.each(function() {
       var el = $(this);
       var inst = el.data('hammer');
+      
       // start new hammer instance
       if(!inst) {
         el.data('hammer', new Hammer(this, options || {}));
