@@ -26,8 +26,6 @@ module.exports = (grunt) ->
       full:
         src: [
           'src/jquery.hammer.prefix'
-
-          'hammer.js/src/core.js'
           'hammer.js/src/setup.js'
           'hammer.js/src/utils.js'
           'hammer.js/src/instance.js'
