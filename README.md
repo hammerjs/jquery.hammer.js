@@ -19,4 +19,4 @@ $("#element")
   .on("swipeleft", function(ev) { console.log(ev); });
 ````
 
-The `instance` is added to the element, you can find it at `$("#element").data("hammer")`
+The instance is added to the element, you can find it at `$("#element").data("hammer")`
