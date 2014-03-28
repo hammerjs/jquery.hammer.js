@@ -1,4 +1,4 @@
-/*! jQuery plugin for Hammer.JS - v1.0.5 - 2014-03-28
+/*! jQuery plugin for Hammer.JS - v1.0.6 - 2014-03-28
  * http://eightmedia.github.com/hammer.js
  *
  * Copyright (c) 2014 Jorik Tangelder <j.tangelder@gmail.com>;
@@ -18,7 +18,7 @@ var Hammer = function(element, options) {
   return new Hammer.Instance(element, options || {});
 };
 
-Hammer.VERSION = '1.0.10dev';
+Hammer.VERSION = '1.0.10';
 
 // default settings
 Hammer.defaults = {
@@ -203,18 +203,18 @@ var Utils = Hammer.utils = {
       , pageY = []
       , clientX = []
       , clientY = []
-			, min = Math.min
-			,	max = Math.max;
+      , min = Math.min
+      , max = Math.max;
 
-		// no need to loop when only one touch
-		if(touches.length === 1) {
-			return {
-				pageX: touches[0].pageX,
-				pageY: touches[0].pageY,
-				clientX: touches[0].clientX,
-				clientY: touches[0].clientY
-			};
-		}
+    // no need to loop when only one touch
+    if(touches.length === 1) {
+      return {
+        pageX: touches[0].pageX,
+        pageY: touches[0].pageY,
+        clientX: touches[0].clientX,
+        clientY: touches[0].clientY
+      };
+    }
 
     Utils.each(touches, function(touch) {
       pageX.push(touch.pageX);
