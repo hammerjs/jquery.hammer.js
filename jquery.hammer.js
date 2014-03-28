@@ -1,4 +1,4 @@
-/*! jQuery plugin for Hammer.JS - v1.0.5 - 2014-03-24
+/*! jQuery plugin for Hammer.JS - v1.0.5 - 2014-03-28
  * http://eightmedia.github.com/hammer.js
  *
  * Copyright (c) 2014 Jorik Tangelder <j.tangelder@gmail.com>;
@@ -18,11 +18,13 @@ function setupPlugin(Hammer, $) {
     $(element).on(eventTypes, function($ev) {
       var data = $ev.originalEvent || $ev;
 
-      var props = ['pageX','pageY','target','preventDefault','stopPropagation'];
+      var props = ['pageX','pageY','clientX','clientY','target','preventDefault','stopPropagation'];
       Hammer.utils.each(props, function(prop) {
-        data[prop] = data[prop] || $ev[prop];
+				if(data[prop] == null) {
+          data[prop] = $ev[prop];
+				}
       });
-      
+
       // for IE
       if(data.which === undefined) {
         data.which = data.button;
@@ -76,7 +78,7 @@ function setupPlugin(Hammer, $) {
     return this.each(function() {
       var el = $(this);
       var inst = el.data('hammer');
-      
+
       // start new hammer instance
       if(!inst) {
         el.data('hammer', new Hammer(this, options || {}));
