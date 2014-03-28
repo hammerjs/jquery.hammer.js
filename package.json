@@ -38,7 +38,8 @@
     "grunt-contrib-watch": "0.6.x",
     "faketouches": "git://github.com/jtangelder/faketouches.js.git",
     "underscore": "1.5.x",
-    "grunt-contrib-qunit": "~0.4.0"
+    "grunt-contrib-qunit": "~0.4.0",
+    "grunt-string-replace": "^0.2.7"
   },
   "main": "jquery.hammer.js",
   "engines": {

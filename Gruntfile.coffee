@@ -62,7 +62,16 @@ module.exports = (grunt) ->
         tasks: ['concat']
         options:
           interrupt: true
-          
+
+    'string-replace':
+      version:
+        files:
+          'jquery.hammer-full.js': 'jquery.hammer-full.js'
+        options:
+          replacements: [
+              pattern: '{{PKG_VERSION}}'
+              replacement: '<%= hammerPkg.version %>'
+            ]
     connect:
       server:
         options:
@@ -79,9 +88,10 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks 'grunt-contrib-jshint'
   grunt.loadNpmTasks 'grunt-contrib-connect'
   grunt.loadNpmTasks 'grunt-contrib-qunit'
+  grunt.loadNpmTasks 'grunt-string-replace'
 
   # Default task(s).
   grunt.registerTask 'default', ['connect','watch']
   grunt.registerTask 'test', ['jshint','connect','qunit']
-  grunt.registerTask 'build', ['concat','uglify','test']
-  grunt.registerTask 'build-simple', ['concat','uglify','jshint']
+  grunt.registerTask 'build', ['concat','string-replace','uglify','test']
+  grunt.registerTask 'build-simple', ['concat','string-replace','uglify','jshint']

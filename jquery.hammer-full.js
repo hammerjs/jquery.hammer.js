@@ -18,7 +18,7 @@ var Hammer = function(element, options) {
   return new Hammer.Instance(element, options || {});
 };
 
-Hammer.VERSION = '{{PKG_VERSION}}';
+Hammer.VERSION = '1.0.10dev';
 
 // default settings
 Hammer.defaults = {
@@ -202,8 +202,20 @@ var Utils = Hammer.utils = {
     var pageX = []
       , pageY = []
       , clientX = []
-      , clientY = [];
-		
+      , clientY = []
+			, min = Math.min
+			,	max = Math.max;
+
+		// no need to loop when only one touch
+		if(touches.length === 1) {
+			return {
+				pageX: touches[0].pageX,
+				pageY: touches[0].pageY,
+				clientX: touches[0].clientX,
+				clientY: touches[0].clientY
+			};
+		}
+
     Utils.each(touches, function(touch) {
       pageX.push(touch.pageX);
       pageY.push(touch.pageY);
@@ -212,10 +224,10 @@ var Utils = Hammer.utils = {
     });
 
     return {
-      pageX: (Math.min.apply(Math, pageX) + Math.max.apply(Math, pageX)) / 2,
-      pageY: (Math.min.apply(Math, pageY) + Math.max.apply(Math, pageY)) / 2,
-      clientX: (Math.min.apply(Math, clientX) + Math.max.apply(Math, clientX)) / 2,
-      clientY: (Math.min.apply(Math, clientY) + Math.max.apply(Math, clientY)) / 2
+      pageX: (min.apply(Math, pageX) + max.apply(Math, pageX)) / 2,
+      pageY: (min.apply(Math, pageY) + max.apply(Math, pageY)) / 2,
+      clientX: (min.apply(Math, clientX) + max.apply(Math, clientX)) / 2,
+      clientY: (min.apply(Math, clientY) + max.apply(Math, clientY)) / 2
     };
   },
 
@@ -731,7 +743,7 @@ var Event = Hammer.event = {
 
     return {
       center     : Utils.getCenter(touches),
-      timeStamp  : new Date().getTime(),
+      timeStamp  : Date.now(),
       target     : ev.target,
       touches    : touches,
       eventType  : eventType,
@@ -1521,6 +1533,16 @@ if(typeof module == 'object' && module.exports) {
 }
 
 function setupPlugin(Hammer, $) {
+
+	// provide polyfill for Date.now()
+	// browser support: http://kangax.github.io/es5-compat-table/#Date.now
+	if (!Date.now) {
+		Date.now = function now() {
+			return new Date().getTime();
+		};
+	}
+
+
   /**
    * bind dom events
    * this overwrites addEventListener

@@ -1,4 +1,14 @@
 function setupPlugin(Hammer, $) {
+
+	// provide polyfill for Date.now()
+	// browser support: http://kangax.github.io/es5-compat-table/#Date.now
+	if (!Date.now) {
+		Date.now = function now() {
+			return new Date().getTime();
+		};
+	}
+
+
   /**
    * bind dom events
    * this overwrites addEventListener
