@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html>
+<!--[if lte IE 8]>         <html class="old-ie"> <![endif]-->
+<!--[if gt IE 8]><!--> <html> <!--<![endif]-->
 <head>
     <title>jQuery.hammer.js</title>
     <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.2/css/bootstrap-combined.min.css" rel="stylesheet">
@@ -55,6 +56,8 @@
             padding: 1px 4px;
             width: auto;
         }
+
+		.old-ie .log li { width: 30%; display: block; float: left; }
 
     </style>
 </head>
@@ -163,7 +166,7 @@
     Hammer.plugins.fakeMultitouch();
 
     function getEl(id) {
-        return document.getElementById(id);
+        return $("#"+id)[0];
     }
 
 	/*
@@ -198,7 +201,8 @@
     function getLogElement(type, name) {
         var el = log_elements[type + name];
         if(!el) {
-            return log_elements[type + name] = getEl("log-"+ type +"-"+ name);
+			el = getEl("log-"+ type +"-"+ name);
+            log_elements[type + name] = el;
         }
         return el;
     }
@@ -219,8 +223,7 @@
 
         // highlight gesture
         var event_el = getLogElement('gesture', ev.type);
-        if(event_el) { event_el.className = "active"; }
-
+        event_el.className = "active";
 
         for(var i= 0,len=properties.length; i<len; i++) {
             var prop = properties[i];
@@ -243,13 +246,15 @@
         }
     }
 
-
     // get all the events
     var all_events = [];
     $("#events-list li").each(function() {
         var li = $(this);
-        var type = li.text();
+        var type = $.trim(li.text());
         li.attr("id", "log-gesture-"+type);
+
+		log_elements["gesture" + type] = this;
+
         all_events.push(type);
     });
 
