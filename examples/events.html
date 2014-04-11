@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Hammer.js</title>
+    <title>jQuery.hammer.js</title>
     <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.2/css/bootstrap-combined.min.css" rel="stylesheet">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1">
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <style>
 
@@ -14,16 +14,19 @@
         .container { position: relative; }
 
         .hitarea {
-            position: absolute;
+          position: absolute;
           left: 0;
           top: 0;
           width: 100%;
           height: 100%;
-          background: rgba(0,0,0,.05);
+          background: rgba(0,255,0,.05);
           text-align: center;
-          border: dashed 3px red;
+          border: dotted 1px green;
         }
 
+		.log {
+			margin: 0;
+		}
 
         .log li {
             display: inline-block;
@@ -34,6 +37,10 @@
         @media screen and (min-width: 640px) {
           .log li { width: 30%; }
         }
+
+		@media (max-width: 900px) {
+			.visible-desktop { display: none; }
+		}
 
         .properties li { white-space: nowrap; }
         .properties span { margin-left: 5px; }
@@ -54,19 +61,31 @@
 <body>
 
 
-<p class="alert"><strong>Press shift on your desktop for multitouch.</strong></p>
+<p class="pull-right visible-desktop"><strong>Press shift on your desktop for multitouch.</strong></p>
 
-<p>
-    <label class="checkbox">
-        <input type="checkbox" checked id="prevent-default"> block browser behavior (preventDefault)
-    </label>
-</p>
+	<ul class="inline">
+		<li>
+			<label>
+				<input type="checkbox" checked id="prevent-default" style="margin:0;"> block browser behavior (preventDefault)
+			</label>
+		</li>
+		<li>
+			<label>
+				<input type="checkbox" id="console-log" style="margin:0;"> console.log all events
+			</label>
+		</li>
+		<li>
+			<input type="button" class="btn btn-small" id="reset" value="reset">
+		</li>
+	</ul>
+
 <div class="container">
 <div class="log well well-small">
     <h4>Events</h4>
     <ul class="unstyled events" id="events-list">
         <li>touch</li>
         <li>release</li>
+        <li>gesture</li>
         <li>hold</li>
         <li>tap</li>
         <li>doubletap</li>
@@ -113,9 +132,6 @@
         <li><strong>scale</strong>  <span id="log-prop-scale"></span></li>
         <li><strong>rotation</strong> <span id="log-prop-rotation"></span>&deg;</li>
 
-        <li><strong>interimDirection</strong>  <span id="log-prop-interimDirection"></span></li>
-        <li><strong>interimAngle</strong> <span id="log-prop-interimAngle"></span>&deg;</li>
-
         <li><strong>target</strong> <span id="log-prop-target"></span></li>
     </ul>
 </div>
@@ -123,25 +139,59 @@
 <div id="hitarea" class="hitarea"></div>
 </div>
 
-<!-- jQuery is just for the plugin! Hammer.js works without jQuery :-) -->
+<!--
+<textarea id="debug_log" rows="45"></textarea>
+-->
+
+<!-- jQuery is just for the demo! Hammer.js works without jQuery :-) -->
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
 
 <script src="../jquery.hammer-full.js"></script>
+<script src="../hammer.js/plugins/hammer.fakemultitouch.js"></script>
+<script src="../hammer.js/plugins/hammer.showtouches.js"></script>
+
+
+<!--[if !IE]> -->
+<script>
+    Hammer.plugins.showTouches();
+</script>
+<!-- <![endif]-->
+
+
 <script>
 
+    Hammer.plugins.fakeMultitouch();
 
     function getEl(id) {
         return document.getElementById(id);
     }
 
+	/*
+	var debug_log_el = getEl('debug_log');
+	debug_log_el.value = '';
+	function debug() {
+		console.log(arguments)
+		debug_log_el.value = "\n"+ Array.prototype.slice.call(arguments,0).join(", ") + debug_log_el.value;
+	}
+	*/
 
     var hammertime;
     var log_elements = {};
     var prevent_scroll_drag = true;
+	var console_log = false;
 
 
     $("#prevent-default").click(function() {
         hammertime.options.prevent_default = this.checked;
+    });
+
+	$("#console-log").click(function() {
+        console_log = this.checked;
+    });
+
+	$("#reset").click(function() {
+        $("#events-list li").removeClass("active");
+        $("ul.properties li span").text("");
     });
 
 
@@ -156,7 +206,6 @@
     // log properties
     var properties = ['gesture','center','deltaTime','angle','direction',
         'distance','deltaX','deltaY','velocityX','velocityY', 'pointerType',
-        'interimDirection','interimAngle',
         'scale','rotation','touches','target'];
 
     function logEvent(ev) {
@@ -164,9 +213,13 @@
             return;
         }
 
+		if(console_log) {
+			console.log(ev.type, ev.gesture.eventType, ev);
+		}
+
         // highlight gesture
         var event_el = getLogElement('gesture', ev.type);
-        event_el.className = "active";
+        if(event_el) { event_el.className = "active"; }
 
 
         for(var i= 0,len=properties.length; i<len; i++) {
@@ -204,9 +257,12 @@
     // start!
     $("#hitarea").hammer({
           prevent_default: true,
-          no_mouseevents: true
+          no_mouseevents: true,
+          gesture: true
       })
       .on(all_events.join(" "), logEvent);
+
+	hammertime = $("#hitarea").data("hammer");
 
 </script>
 <script src="assets/js/ga.js" async></script>
