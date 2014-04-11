@@ -1,12 +1,11 @@
 function setupPlugin(Hammer, $) {
-
-	// provide polyfill for Date.now()
-	// browser support: http://kangax.github.io/es5-compat-table/#Date.now
-	if (!Date.now) {
-		Date.now = function now() {
-			return new Date().getTime();
-		};
-	}
+  // provide polyfill for Date.now()
+  // browser support: http://kangax.github.io/es5-compat-table/#Date.now
+  if(!Date.now) {
+    Date.now = function now() {
+      return new Date().getTime();
+    };
+  }
 
 
   /**
@@ -15,7 +14,7 @@ function setupPlugin(Hammer, $) {
    * @this    {Hammer.Instance}
    * @return  {jQuery}
    */
-  Hammer.utils.each(['on','off'], function(method) {
+  Hammer.utils.each(['on', 'off'], function(method) {
     Hammer.utils[method] = function(element, type, handler) {
       $(element)[method](type, function($ev) {
         // append the jquery fixed properties/methods
@@ -40,7 +39,7 @@ function setupPlugin(Hammer, $) {
       el = $(eventData.target);
     }
     return el.trigger({
-      type   : gesture,
+      type: gesture,
       gesture: eventData
     });
   };
