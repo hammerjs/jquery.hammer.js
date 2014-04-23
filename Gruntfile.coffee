@@ -56,10 +56,15 @@ module.exports = (grunt) ->
       dist:
         src: ['jquery.hammer.js']
 
+    jscs:
+      src: ['src/**/*.js', 'plugins/**/*.js']
+      options:
+        force: true
+        
     watch:
       scripts:
         files: ['src/*.js']
-        tasks: ['concat']
+        tasks: ['concat','jscs']
         options:
           interrupt: true
 
@@ -89,9 +94,10 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks 'grunt-contrib-connect'
   grunt.loadNpmTasks 'grunt-contrib-qunit'
   grunt.loadNpmTasks 'grunt-string-replace'
+  grunt.loadNpmTasks 'grunt-jscs-checker'
 
   # Default task(s).
   grunt.registerTask 'default', ['connect','watch']
-  grunt.registerTask 'test', ['jshint','connect','qunit']
+  grunt.registerTask 'test', ['jshint','jscs','connect','qunit']
   grunt.registerTask 'build', ['concat','string-replace','uglify','test']
   grunt.registerTask 'build-simple', ['concat','string-replace','uglify','jshint']
