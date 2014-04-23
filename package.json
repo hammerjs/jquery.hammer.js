@@ -2,7 +2,7 @@
   "name": "jquery-hammerjs",
   "title": "jQuery plugin for Hammer.JS",
   "description": "A javascript library for multi-touch gestures",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "homepage": "http://eightmedia.github.com/hammer.js",
   "licenses": [
     {
@@ -27,7 +27,7 @@
     "url": "https://github.com/EightMedia/jquery.hammer.js/issues"
   },
   "dependencies": {
-    "hammerjs": "1.0.x"
+    "hammerjs": "1.1.x"
   },
   "devDependencies": {
     "grunt": "0.4.x",

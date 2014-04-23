@@ -185,7 +185,7 @@
 
 
     $("#prevent-default").click(function() {
-        hammertime.options.prevent_default = this.checked;
+        hammertime.options.preventDefault = this.checked;
     });
 
 	$("#console-log").click(function() {
@@ -261,8 +261,7 @@
 
     // start!
     $("#hitarea").hammer({
-          prevent_default: true,
-          no_mouseevents: true,
+          preventDefault: true,
           gesture: true
       })
       .on(all_events.join(" "), logEvent);
