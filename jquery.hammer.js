@@ -1,4 +1,4 @@
-/*! jQuery plugin for Hammer.JS - v1.1.0dev - 2014-04-11
+/*! jQuery plugin for Hammer.JS - v1.1.0 - 2014-04-23
  * http://eightmedia.github.com/hammer.js
  *
  * Copyright (c) 2014 Jorik Tangelder <j.tangelder@gmail.com>;
@@ -7,14 +7,13 @@
   'use strict';
 
 function setupPlugin(Hammer, $) {
-
-	// provide polyfill for Date.now()
-	// browser support: http://kangax.github.io/es5-compat-table/#Date.now
-	if (!Date.now) {
-		Date.now = function now() {
-			return new Date().getTime();
-		};
-	}
+  // provide polyfill for Date.now()
+  // browser support: http://kangax.github.io/es5-compat-table/#Date.now
+  if(!Date.now) {
+    Date.now = function now() {
+      return new Date().getTime();
+    };
+  }
 
 
   /**
@@ -23,12 +22,11 @@ function setupPlugin(Hammer, $) {
    * @this    {Hammer.Instance}
    * @return  {jQuery}
    */
-  Hammer.utils.each(['on','off'], function(method) {
+  Hammer.utils.each(['on', 'off'], function(method) {
     Hammer.utils[method] = function(element, type, handler) {
       $(element)[method](type, function($ev) {
         // append the jquery fixed properties/methods
         var data = $.extend({}, $ev.originalEvent, $ev);
-
         handler.call(this, data);
       });
     };
@@ -49,7 +47,7 @@ function setupPlugin(Hammer, $) {
       el = $(eventData.target);
     }
     return el.trigger({
-      type   : gesture,
+      type: gesture,
       gesture: eventData
     });
   };

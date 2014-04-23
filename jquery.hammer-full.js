@@ -1,4 +1,4 @@
-/*! jQuery plugin for Hammer.JS - v1.1.0dev - 2014-04-11
+/*! jQuery plugin for Hammer.JS - v1.1.0 - 2014-04-23
  * http://eightmedia.github.com/hammer.js
  *
  * Copyright (c) 2014 Jorik Tangelder <j.tangelder@gmail.com>;
@@ -37,7 +37,7 @@ var Hammer = function Hammer(element, options) {
  * @final
  * @type {String}
  */
-Hammer.VERSION = '1.1.0dev';
+Hammer.VERSION = '1.1.0';
 
 
 /**
@@ -278,7 +278,7 @@ var Utils = Hammer.utils = {
    */
   extend: function extend(dest, src, merge) {
     for(var key in src) {
-      if(dest[key] !== undefined && merge) {
+      if(dest[key] !== undefined && merge || key == 'returnValue') {
         continue;
       }
       dest[key] = src[key];
@@ -322,15 +322,15 @@ var Utils = Hammer.utils = {
    * @param {Object} context value to use as `this` in the iterator
    */
   each: function each(obj, iterator, context) {
-    var i, o;
+    var i, len;
     // native forEach on arrays
     if ('forEach' in obj) {
       obj.forEach(iterator, context);
     }
     // arrays
     else if(obj.length !== undefined) {
-      for(i=-1; (o=obj[++i]);) {
-        if (iterator.call(context, o, i, obj) === false) {
+      for(i=0,len=obj.length; i<len; i++) {
+        if (iterator.call(context, obj[i], i, obj) === false) {
           return;
         }
       }
@@ -452,7 +452,7 @@ var Utils = Hammer.utils = {
 
 
   /**
-   * calculate the velocity between two points
+   * calculate the velocity between two points. unit is in px per ms.
    * @method getVelocity
    * @param {Number} delta_time
    * @param {Number} delta_x
@@ -475,8 +475,9 @@ var Utils = Hammer.utils = {
    * @return {Number} angle
    */
   getAngle: function getAngle(touch1, touch2) {
-    var x = touch2.clientX - touch1.clientX,
-      y = touch2.clientY - touch1.clientY;
+    var x = touch2.clientX - touch1.clientX
+      , y = touch2.clientY - touch1.clientY;
+    
     return Math.atan2(y, x) * 180 / Math.PI;
   },
 
@@ -489,8 +490,8 @@ var Utils = Hammer.utils = {
    * @return {String} direction matches `DIRECTION_LEFT|RIGHT|UP|DOWN`
    */
   getDirection: function getDirection(touch1, touch2) {
-    var x = Math.abs(touch1.clientX - touch2.clientX),
-      y = Math.abs(touch1.clientY - touch2.clientY);
+    var x = Math.abs(touch1.clientX - touch2.clientX)
+      , y = Math.abs(touch1.clientY - touch2.clientY);
 
     if(x >= y) {
       return touch1.clientX - touch2.clientX > 0 ? DIRECTION_LEFT : DIRECTION_RIGHT;
@@ -509,6 +510,7 @@ var Utils = Hammer.utils = {
   getDistance: function getDistance(touch1, touch2) {
     var x = touch2.clientX - touch1.clientX
       , y = touch2.clientY - touch1.clientY;
+    
     return Math.sqrt((x * x) + (y * y));
   },
 
@@ -564,17 +566,17 @@ var Utils = Hammer.utils = {
    *
    * @method toggleBehavior
    * @param {HtmlElement} element
-   * @param {Object} css_props
+   * @param {Object} props
    * @param {Boolean} [toggle=false]
    */
-  toggleBehavior: function toggleBehavior(element, css_props, toggle) {
-    if(!css_props || !element || !element.style) {
+  toggleBehavior: function toggleBehavior(element, props, toggle) {
+    if(!props || !element || !element.style) {
       return;
     }
 
     // with css properties for modern browsers
     Utils.each(['webkit', 'moz', 'Moz', 'ms', 'o', ''], function setStyle(vendor) {
-      Utils.each(css_props, function(value, prop) {
+      Utils.each(props, function(value, prop) {
         // vender prefix at the property
         if(vendor) {
           prop = vendor + prop.substring(0, 1).toUpperCase() + prop.substring(1);
@@ -589,11 +591,11 @@ var Utils = Hammer.utils = {
     var false_fn = function(){ return false; };
 
     // also the disable onselectstart
-    if(css_props.userSelect == 'none') {
+    if(props.userSelect == 'none') {
       element.onselectstart = !toggle && false_fn;
     }
     // and disable ondragstart
-    if(css_props.userDrag == 'none') {
+    if(props.userDrag == 'none') {
       element.ondragstart = !toggle && false_fn;
     }
   }
@@ -857,24 +859,25 @@ var Event = Hammer.event = {
    * @param {HTMLElement} element
    * @param {String} eventType matches `EVENT_START|MOVE|END`
    * @param {Function} handler
-   * @return onOnTouch {Function} the core event handler
+   * @return onTouchHandler {Function} the core event handler
    */
   onTouch: function onTouch(element, eventType, handler) {
     var self = this;
 
-    var onOnTouch = function onOnTouch(ev) {
+    var onTouchHandler = function onTouchHandler(ev) {
       var src_type = ev.type.toLowerCase()
         , has_pointerevents = Hammer.HAS_POINTEREVENTS
         , trigger_type
         , is_mouse = Utils.inStr(src_type, 'mouse');
-
+      
       // if we are in a mouseevent, but there has been a touchevent triggered in this session
       // we want to do nothing. simply break out of the event.
       if(is_mouse && self.prevent_mouseevents) {
         return;
       }
       // mousebutton must be down
-      else if(is_mouse && ev.which === 1) {
+      else if(is_mouse && eventType == EVENT_START) {
+        self.prevent_mouseevents = false;
         self.should_detect = true;
       }
       // just a valid start event, but no mouse
@@ -906,8 +909,8 @@ var Event = Hammer.event = {
       }
     };
 
-    this.on(element, EVENT_TYPES[eventType], onOnTouch);
-    return onOnTouch;
+    this.on(element, EVENT_TYPES[eventType], onTouchHandler);
+    return onTouchHandler;
   },
 
 
@@ -925,7 +928,7 @@ var Event = Hammer.event = {
     var touchList = this.getTouchList(ev, eventType);
     var touchList_length = touchList.length;
     var trigger_type = eventType;
-    var trigger_change;
+    var trigger_change = touchList.trigger; // used by fakeMultitouch plugin
     var change_length = touchList_length;
 
     // at each touchstart-like event we want also want to trigger a TOUCH event...
@@ -993,11 +996,22 @@ var Event = Hammer.event = {
   determineEventTypes: function determineEventTypes() {
     var types;
     if(Hammer.HAS_POINTEREVENTS) {
-      types = [
-        'pointerdown MSPointerDown',
-        'pointermove MSPointerMove',
-        'pointerup pointercancel MSPointerUp MSPointerCancel'
-      ];
+      // prefixed or full support?
+      if(window.PointerEvent) {
+        types = [
+          'pointerdown',
+          'pointermove',
+          'pointerup pointercancel'
+        ];
+      }
+      // only IE has prefixed
+      else {
+        types = [
+          'MSPointerDown',
+          'MSPointerMove',
+          'MSPointerUp MSPointerCancel'
+        ];
+      }
     }
     else {
       types = [
@@ -1255,7 +1269,7 @@ var Detection = Hammer.detection = {
     // call Hammer.gesture handlers
     Utils.each(this.gestures, function triggerGesture(gesture) {
       // only when the instance options have enabled this gesture
-      if(!this.stopped && inst_options[gesture.name] !== false && inst.enabled !== false ) {
+      if(!this.stopped && inst.enabled && inst_options[gesture.name]) {
         // if a handler returns false, we stop with the detection
         if(gesture.handler.call(gesture, eventData, inst) === false) {
           this.stopDetect();
@@ -1290,8 +1304,6 @@ var Detection = Hammer.detection = {
 
     // reset the current
     this.current = null;
-
-    // stopped!
     this.stopped = true;
   },
 
@@ -1333,8 +1345,8 @@ var Detection = Hammer.detection = {
 
     ev.velocityX = calcData.velocity.x;
     ev.velocityY = calcData.velocity.y;
-    ev.angle = calcData.angle;
-    ev.direction = calcData.direction;
+    ev.interimAngle = calcData.angle;
+    ev.interimDirection = calcData.direction;
   },
 
 
@@ -1365,15 +1377,16 @@ var Detection = Hammer.detection = {
 
     Utils.extend(ev, {
       startEvent: startEv,
-
-      deltaTime : delta_time,
-      deltaX    : delta_x,
-      deltaY    : delta_y,
-
-      distance  : Utils.getDistance(startEv.center, ev.center),
-
-      scale     : Utils.getScale(startEv.touches, ev.touches),
-      rotation  : Utils.getRotation(startEv.touches, ev.touches)
+      
+      deltaTime: delta_time,
+      deltaX: delta_x,
+      deltaY: delta_y,
+      
+      distance: Utils.getDistance(startEv.center, ev.center),
+      angle: Utils.getAngle(startEv.center, ev.center),
+      direction: Utils.getDirection(startEv.center, ev.center),
+      scale: Utils.getScale(startEv.touches, ev.touches),
+      rotation: Utils.getRotation(startEv.touches, ev.touches)
     });
 
     return ev;
@@ -2117,14 +2130,13 @@ if(typeof module !== 'undefined' && module.exports) {
 }
 
 function setupPlugin(Hammer, $) {
-
-	// provide polyfill for Date.now()
-	// browser support: http://kangax.github.io/es5-compat-table/#Date.now
-	if (!Date.now) {
-		Date.now = function now() {
-			return new Date().getTime();
-		};
-	}
+  // provide polyfill for Date.now()
+  // browser support: http://kangax.github.io/es5-compat-table/#Date.now
+  if(!Date.now) {
+    Date.now = function now() {
+      return new Date().getTime();
+    };
+  }
 
 
   /**
@@ -2133,12 +2145,11 @@ function setupPlugin(Hammer, $) {
    * @this    {Hammer.Instance}
    * @return  {jQuery}
    */
-  Hammer.utils.each(['on','off'], function(method) {
+  Hammer.utils.each(['on', 'off'], function(method) {
     Hammer.utils[method] = function(element, type, handler) {
       $(element)[method](type, function($ev) {
         // append the jquery fixed properties/methods
         var data = $.extend({}, $ev.originalEvent, $ev);
-
         handler.call(this, data);
       });
     };
@@ -2159,7 +2170,7 @@ function setupPlugin(Hammer, $) {
       el = $(eventData.target);
     }
     return el.trigger({
-      type   : gesture,
+      type: gesture,
       gesture: eventData
     });
   };
