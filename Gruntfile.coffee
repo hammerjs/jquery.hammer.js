@@ -60,10 +60,10 @@ module.exports = (grunt) ->
       src: ['src/**/*.js', 'plugins/**/*.js']
       options:
         force: true
-        
+
     watch:
       scripts:
-        files: ['src/*.js']
+        files: ['src/*.js','hammer.js/src/**/*.js']
         tasks: ['concat','jscs']
         options:
           interrupt: true

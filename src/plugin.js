@@ -1,7 +1,7 @@
 function setupPlugin(Hammer, $) {
     // provide polyfill for Date.now()
     // browser support: http://kangax.github.io/es5-compat-table/#Date.now
-    if (!Date.now) {
+    if(!Date.now) {
         Date.now = function now() {
             return new Date().getTime();
         };
@@ -18,6 +18,9 @@ function setupPlugin(Hammer, $) {
             $(element)[method](type, function($ev) {
                 // append the jquery fixed properties/methods
                 var data = $.extend({}, $ev.originalEvent, $ev);
+                if(data.button === undefined) {
+                    data.button = $ev.which - 1;
+                }
                 handler.call(this, data);
             });
         };
@@ -58,7 +61,7 @@ function setupPlugin(Hammer, $) {
             // start new hammer instance
             if(!inst) {
                 el.data('hammer', new Hammer(this, options || {}));
-            // change the options
+                // change the options
             } else if(inst && options) {
                 Hammer.utils.extend(inst.options, options);
             }

@@ -2,7 +2,7 @@
   "name": "jquery-hammerjs",
   "title": "jQuery plugin for Hammer.JS",
   "description": "A javascript library for multi-touch gestures",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "homepage": "http://eightmedia.github.com/hammer.js",
   "licenses": [
     {
@@ -39,7 +39,7 @@
     "faketouches": "git://github.com/jtangelder/faketouches.js.git",
     "underscore": "1.5.x",
     "grunt-contrib-qunit": "~0.4.0",
-    "grunt-string-replace": "^0.2.7",      
+    "grunt-string-replace": "^0.2.7",
     "grunt-jscs-checker": "^0.4.1"
   },
   "main": "jquery.hammer.js",

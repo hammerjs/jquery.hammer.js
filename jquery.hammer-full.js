@@ -1,4 +1,4 @@
-/*! jQuery plugin for Hammer.JS - v1.1.1 - 2014-04-23
+/*! jQuery plugin for Hammer.JS - v1.1.2 - 2014-04-25
  * http://eightmedia.github.com/hammer.js
  *
  * Copyright (c) 2014 Jorik Tangelder <j.tangelder@gmail.com>;
@@ -36,7 +36,7 @@ var Hammer = function Hammer(element, options) {
  * @final
  * @type {String}
  */
-Hammer.VERSION = '1.1.1';
+Hammer.VERSION = '1.1.2';
 
 /**
  * default settings.
@@ -126,14 +126,14 @@ Hammer.defaults = {
  * @type {HTMLElement}
  * @default window.document
  */
-Hammer.DOCUMENT = window.document;
+Hammer.DOCUMENT = document;
 
 /**
  * detect support for pointer events
  * @property HAS_POINTEREVENTS
  * @type {Boolean}
  */
-Hammer.HAS_POINTEREVENTS = window.navigator.pointerEnabled || window.navigator.msPointerEnabled;
+Hammer.HAS_POINTEREVENTS = navigator.pointerEnabled || navigator.msPointerEnabled;
 
 /**
  * detect support for touch events
@@ -143,12 +143,26 @@ Hammer.HAS_POINTEREVENTS = window.navigator.pointerEnabled || window.navigator.m
 Hammer.HAS_TOUCHEVENTS = ('ontouchstart' in window);
 
 /**
+ * detect mobile browsers
+ * @property IS_MOBILE
+ * @type {Boolean}
+ */
+Hammer.IS_MOBILE = /mobile|tablet|ip(ad|hone|od)|android|silk/i.test(navigator.userAgent);
+
+/**
+ * detect if we want to support mouseevents at all
+ * @property NO_MOUSEEVENTS
+ * @type {Boolean}
+ */
+Hammer.NO_MOUSEEVENTS = (Hammer.HAS_TOUCHEVENTS && Hammer.IS_MOBILE) || Hammer.HAS_POINTEREVENTS;
+
+/**
  * interval in which Hammer recalculates current velocity/direction/angle in ms
  * @property CALCULATE_INTERVAL
  * @type {Number}
- * @default 50
+ * @default 25
  */
-Hammer.CALCULATE_INTERVAL = 50;
+Hammer.CALCULATE_INTERVAL = 25;
 
 /**
  * eventtypes per touchevent (start, move, end) are filled by `Event.determineEventTypes` on `setup`
@@ -264,7 +278,7 @@ var Utils = Hammer.utils = {
      */
     extend: function extend(dest, src, merge) {
         for(var key in src) {
-            if(dest[key] !== undefined && merge || key == 'returnValue') {
+            if(!src.hasOwnProperty(key) || (dest[key] !== undefined && merge)) {
                 continue;
             }
             dest[key] = src[key];
@@ -528,6 +542,33 @@ var Utils = Hammer.utils = {
     },
 
     /**
+     * set css properties with their prefixes
+     * @param {HTMLElement} element
+     * @param {String} prop
+     * @param {String} value
+     * @param {Boolean} [toggle=true]
+     * @return {Boolean}
+     */
+    setPrefixedCss: function setPrefixedCss(element, prop, value, toggle) {
+        var prefixes = ['', 'Webkit', 'Moz', 'O', 'ms'];
+        prop = Utils.toCamelCase(prop);
+
+        for(var i = 0; i < prefixes.length; i++) {
+            var p = prop;
+            // prefixes
+            if(prefixes[i]) {
+                p = prefixes[i] + p.slice(0, 1).toUpperCase() + p.slice(1);
+            }
+
+            // test the style
+            if(p in element.style) {
+                element.style[p] = (toggle == null || toggle) && value || '';
+                break;
+            }
+        }
+    },
+
+    /**
      * toggle browser default behavior by setting css properties.
      * `userSelect='none'` also sets `element.onselectstart` to false
      * `userDrag='none'` also sets `element.ondragstart` to false
@@ -535,38 +576,29 @@ var Utils = Hammer.utils = {
      * @method toggleBehavior
      * @param {HtmlElement} element
      * @param {Object} props
-     * @param {Boolean} [toggle=false]
+     * @param {Boolean} [toggle=true]
      */
     toggleBehavior: function toggleBehavior(element, props, toggle) {
         if(!props || !element || !element.style) {
             return;
         }
 
-        // with css properties for modern browsers
-        Utils.each(['webkit', 'moz', 'Moz', 'ms', 'o', ''], function setStyle(vendor) {
-            Utils.each(props, function(value, prop) {
-                // vender prefix at the property
-                if(vendor) {
-                    prop = vendor + prop.substring(0, 1).toUpperCase() + prop.substring(1);
-                }
-                // set the style
-                if(prop in element.style) {
-                    element.style[prop] = !toggle && value;
-                }
-            });
+        // set the css properties
+        Utils.each(props, function(value, prop) {
+            Utils.setPrefixedCss(element, prop, value, toggle);
         });
 
-        var falseFn = function() {
+        var falseFn = toggle && function() {
             return false;
         };
 
         // also the disable onselectstart
         if(props.userSelect == 'none') {
-            element.onselectstart = !toggle && falseFn;
+            element.onselectstart = falseFn;
         }
         // and disable ondragstart
         if(props.userDrag == 'none') {
-            element.ondragstart = !toggle && falseFn;
+            element.ondragstart = falseFn;
         }
     },
 
@@ -633,7 +665,7 @@ Hammer.Instance = function(element, options) {
 
     // add some css to the element to prevent the browser from doing its native behavoir
     if(this.options.behavior) {
-        Utils.toggleBehavior(this.element, this.options.behavior, false);
+        Utils.toggleBehavior(this.element, this.options.behavior, true);
     }
 
     /**
@@ -742,9 +774,7 @@ Hammer.Instance.prototype = {
         var i, eh;
 
         // undo all changes made by stop_browser_behavior
-        if(this.options.behavior) {
-            Utils.toggleBehavior(this.element, this.options.behavior, true);
-        }
+        Utils.toggleBehavior(this.element, this.options.behavior, false);
 
         // unbind all custom event handlers
         for(i = -1; (eh = this.eventHandlers[++i]);) {
@@ -842,26 +872,32 @@ var Event = Hammer.event = {
 
         var onTouchHandler = function onTouchHandler(ev) {
             var srcType = ev.type.toLowerCase(),
-                hasPointerEvents = Hammer.HAS_POINTEREVENTS,
-                triggerType,
-                isMouse = Utils.inStr(srcType, 'mouse');
+                isPointer = Utils.inStr(srcType, 'pointer'),
+                isMouse = Utils.inStr(srcType, 'mouse'),
+                triggerType;
+
 
             // if we are in a mouseevent, but there has been a touchevent triggered in this session
             // we want to do nothing. simply break out of the event.
             if(isMouse && self.preventMouseEvents) {
                 return;
+
             // mousebutton must be down
-            } else if(isMouse && eventType == EVENT_START) {
+            } else if(isMouse && eventType == EVENT_START && ev.button === 0) {
                 self.preventMouseEvents = false;
                 self.shouldDetect = true;
+
+
+            } else if(isPointer && eventType == EVENT_START) {
+                self.shouldDetect = (ev.buttons === 1);
             // just a valid start event, but no mouse
-            } else if(eventType == EVENT_START && !isMouse) {
+            } else if(!isMouse && eventType == EVENT_START) {
                 self.preventMouseEvents = true;
                 self.shouldDetect = true;
             }
 
             // update the pointer event before entering the detection
-            if(hasPointerEvents && eventType != EVENT_END) {
+            if(isPointer && eventType != EVENT_END) {
                 PointerEvent.updatePointer(eventType, ev);
             }
 
@@ -877,7 +913,9 @@ var Event = Hammer.event = {
                 self.shouldDetect = false;
                 PointerEvent.reset();
             // update the pointerevent object after the detection
-            } else if(hasPointerEvents && eventType == EVENT_END) {
+            }
+
+            if(isPointer && eventType == EVENT_END) {
                 PointerEvent.updatePointer(eventType, ev);
             }
         };
@@ -966,21 +1004,25 @@ var Event = Hammer.event = {
     determineEventTypes: function determineEventTypes() {
         var types;
         if(Hammer.HAS_POINTEREVENTS) {
-            // prefixed or full support?
             if(window.PointerEvent) {
                 types = [
                     'pointerdown',
                     'pointermove',
-                    'pointerup pointercancel'
+                    'pointerup pointercancel lostpointercapture'
                 ];
-            // only IE has prefixed
             } else {
                 types = [
                     'MSPointerDown',
                     'MSPointerMove',
-                    'MSPointerUp MSPointerCancel'
+                    'MSPointerUp MSPointerCancel MSLostPointerCapture'
                 ];
             }
+        } else if(Hammer.NO_MOUSEEVENTS) {
+            types = [
+                'touchstart',
+                'touchmove',
+                'touchend touchcancel'
+            ];
         } else {
             types = [
                 'touchstart mousedown',
@@ -1047,6 +1089,8 @@ var Event = Hammer.event = {
         var pointerType = POINTER_TOUCH;
         if(Utils.inStr(ev.type, 'mouse') || PointerEvent.matchType(POINTER_MOUSE, ev)) {
             pointerType = POINTER_MOUSE;
+        } else if(PointerEvent.matchType(POINTER_PEN, ev)) {
+            pointerType = POINTER_PEN;
         }
 
         return {
@@ -1087,6 +1131,7 @@ var Event = Hammer.event = {
     }
 };
 
+
 /**
  * @module hammer
  *
@@ -1122,7 +1167,7 @@ var PointerEvent = Hammer.PointerEvent = {
      * @param {Object} pointerEvent
      */
     updatePointer: function updatePointer(eventType, pointerEvent) {
-        if(eventType == EVENT_END) {
+        if(eventType == EVENT_END || (eventType != EVENT_END && pointerEvent.buttons !== 1)) {
             delete this.pointers[pointerEvent.pointerId];
         } else {
             pointerEvent.identifier = pointerEvent.pointerId;
@@ -1323,7 +1368,10 @@ var Detection = Hammer.detection = {
         if(ev.eventType == EVENT_TOUCH || ev.eventType == EVENT_RELEASE) {
             startEv.touches = [];
             Utils.each(ev.touches, function(touch) {
-                startEv.touches.push(Utils.extend({}, touch));
+                startEv.touches.push({
+                    clientX: touch.clientX,
+                    clientY: touch.clientY
+                });
             });
         }
 
@@ -1727,7 +1775,7 @@ Hammer.gestures.Release = {
  */
 /**
  * triggers swipe events when the end velocity is above the threshold
- * for best usage, set `prevent_default` (on the drag gesture) to `true`
+ * for best usage, set `preventDefault` (on the drag gesture) to `true`
  * ````
  *  hammertime.on("dragleft swipeleft", function(ev) {
  *    console.log(ev);
@@ -1780,9 +1828,9 @@ Hammer.gestures.Swipe = {
          * horizontal swipe velocity
          * @property swipeVelocityX
          * @type {Number}
-         * @default 0.7
+         * @default 0.6
          */
-        swipeVelocityX: 0.7,
+        swipeVelocityX: 0.6,
 
         /**
          * vertical swipe velocity
@@ -1984,7 +2032,7 @@ Hammer.gestures.Touch = {
 /**
  * User want to scale or rotate with 2 fingers
  * Preventing the default browser behavior is a good way to improve feel and working. This can be done with the
- * `transform_always_block` option.
+ * `preventDefault` option.
  *
  * @class Transform
  * @static
@@ -2108,7 +2156,7 @@ if(typeof module !== 'undefined' && module.exports) {
 function setupPlugin(Hammer, $) {
     // provide polyfill for Date.now()
     // browser support: http://kangax.github.io/es5-compat-table/#Date.now
-    if (!Date.now) {
+    if(!Date.now) {
         Date.now = function now() {
             return new Date().getTime();
         };
@@ -2125,6 +2173,9 @@ function setupPlugin(Hammer, $) {
             $(element)[method](type, function($ev) {
                 // append the jquery fixed properties/methods
                 var data = $.extend({}, $ev.originalEvent, $ev);
+                if(data.button === undefined) {
+                    data.button = $ev.which - 1;
+                }
                 handler.call(this, data);
             });
         };
@@ -2165,13 +2216,14 @@ function setupPlugin(Hammer, $) {
             // start new hammer instance
             if(!inst) {
                 el.data('hammer', new Hammer(this, options || {}));
-            // change the options
+                // change the options
             } else if(inst && options) {
                 Hammer.utils.extend(inst.options, options);
             }
         });
     };
 }
+
 
 // AMD
 if(typeof define == 'function' && define.amd) {
