@@ -1,4 +1,4 @@
-/*! jQuery plugin for Hammer.JS - v1.0.6 - 2014-03-28
+/*! jQuery plugin for Hammer.JS - v1.0.11 - 2014-05-20
  * http://eightmedia.github.com/hammer.js
  *
  * Copyright (c) 2014 Jorik Tangelder <j.tangelder@gmail.com>;
@@ -18,7 +18,7 @@ var Hammer = function(element, options) {
   return new Hammer.Instance(element, options || {});
 };
 
-Hammer.VERSION = '1.0.10';
+Hammer.VERSION = '1.0.11';
 
 // default settings
 Hammer.defaults = {
@@ -29,9 +29,10 @@ Hammer.defaults = {
   stop_browser_behavior: {
     // this also triggers onselectstart=false for IE
     userSelect       : 'none',
-    // this makes the element blocking in IE10>, you could experiment with the value
-    // see for more options this issue; https://github.com/EightMedia/hammer.js/issues/241
-    touchAction      : 'none',
+    // this makes the element blocking in IE10> and Chrome 35>, you could experiment with the value
+    // see for more options the wiki: https://github.com/EightMedia/hammer.js/wiki
+    touchAction      : 'pan-y',
+
     touchCallout     : 'none',
     contentZooming   : 'none',
     userDrag         : 'none',
@@ -112,6 +113,7 @@ function setup() {
   // Hammer is ready...!
   Hammer.READY = true;
 }
+
 
 var Utils = Hammer.utils = {
   /**
