@@ -1,4 +1,4 @@
-/*! jQuery plugin for Hammer.JS - v1.1.2 - 2014-04-25
+/*! jQuery plugin for Hammer.JS - v1.1.3 - 2014-05-20
  * http://eightmedia.github.com/hammer.js
  *
  * Copyright (c) 2014 Jorik Tangelder <j.tangelder@gmail.com>;
@@ -36,7 +36,7 @@ var Hammer = function Hammer(element, options) {
  * @final
  * @type {String}
  */
-Hammer.VERSION = '1.1.2';
+Hammer.VERSION = '1.1.3';
 
 /**
  * default settings.
@@ -71,12 +71,12 @@ Hammer.defaults = {
 
         /**
          * Specifies whether and how a given region can be manipulated by the user (for instance, by panning or zooming).
-         * Used by IE10>. By default this makes the element blocking any touch event.
+         * Used by Chrome 35> and IE10>. By default this makes the element blocking any touch event.
          * @property defaults.behavior.touchAction
          * @type {String}
-         * @default: 'none'
+         * @default: 'pan-y'
          */
-        touchAction: 'none',
+        touchAction: 'pan-y',
 
         /**
          * Disables the default callout shown when you touch and hold a touch target.
@@ -872,10 +872,9 @@ var Event = Hammer.event = {
 
         var onTouchHandler = function onTouchHandler(ev) {
             var srcType = ev.type.toLowerCase(),
-                isPointer = Utils.inStr(srcType, 'pointer'),
+                isPointer = Hammer.HAS_POINTEREVENTS,
                 isMouse = Utils.inStr(srcType, 'mouse'),
                 triggerType;
-
 
             // if we are in a mouseevent, but there has been a touchevent triggered in this session
             // we want to do nothing. simply break out of the event.
@@ -886,10 +885,8 @@ var Event = Hammer.event = {
             } else if(isMouse && eventType == EVENT_START && ev.button === 0) {
                 self.preventMouseEvents = false;
                 self.shouldDetect = true;
-
-
             } else if(isPointer && eventType == EVENT_START) {
-                self.shouldDetect = (ev.buttons === 1);
+                self.shouldDetect = (ev.buttons === 1 || PointerEvent.matchType(POINTER_TOUCH, ev));
             // just a valid start event, but no mouse
             } else if(!isMouse && eventType == EVENT_START) {
                 self.preventMouseEvents = true;
@@ -1275,11 +1272,7 @@ var Detection = Hammer.detection = {
         Utils.each(this.gestures, function triggerGesture(gesture) {
             // only when the instance options have enabled this gesture
             if(!this.stopped && inst.enabled && instOptions[gesture.name]) {
-                // if a handler returns false, we stop with the detection
-                if(gesture.handler.call(gesture, eventData, inst) === false) {
-                    this.stopDetect();
-                    return false;
-                }
+                gesture.handler.call(gesture, eventData, inst);
             }
         }, this);
 
@@ -1905,7 +1898,7 @@ Hammer.gestures.Swipe = {
                 break;
 
             case EVENT_END:
-                if(ev.srcEvent.type != 'touchcancel' && ev.deltaTime < options.tapMaxTime && !hasMoved) {
+                if(!Utils.inStr(ev.srcEvent.type, 'cancel') && ev.deltaTime < options.tapMaxTime && !hasMoved) {
                     // previous gesture, for the double tap since these are two different gesture detections
                     sincePrev = prev && prev.lastEvent && ev.timeStamp - prev.lastEvent.timeStamp;
                     didDoubleTap = false;
@@ -1924,6 +1917,7 @@ Hammer.gestures.Swipe = {
                         inst.trigger(current.name, ev);
                     }
                 }
+                break;
         }
     }
 
