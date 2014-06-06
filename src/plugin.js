@@ -21,6 +21,11 @@ function setupPlugin(Hammer, $) {
                 if(data.button === undefined) {
                     data.button = $ev.which - 1;
                 }
+                // fixes the wrong value that ie8 and older return for event.button
+                else if(!!window.attachEvent && !window.addEventListener) {
+                    data.button = (data.button === 1 ? 0 : (data.button === 4 ? 1 : data.button));
+                }
+
                 handler.call(this, data);
             });
         };
