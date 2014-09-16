@@ -1,22 +1,12 @@
 jquery.hammer.js
-================
+==============
 
-[![Build Status](https://travis-ci.org/EightMedia/jquery.hammer.js.png)](https://travis-ci.org/EightMedia/jquery.hammer.js/)
+This jQuery plugin is just a small wrapper around the `Hammer()` class.
+It also extends the `Manager.emit` method by triggering jQuery events.
 
-
-jQuery plugin for Hammer.js 1.x. For the latest, see [http://hammerjs.github.io/jquery-plugin/](http://hammerjs.github.io/jquery-plugin/)
-
-Since version 1.0.6 it is seperated from the main lib, and lives in this repository. 
-It still needs the main library to be included, but a combined version is on its way. :beer:
-
-
-## Usage
-
-````js
-var hammer_options = {};
-$("#element")
-  .hammer(hammer_options)
-  .on("swipeleft", function(ev) { console.log(ev); });
+ ````js
+$(element).hammer(options).bind("pan", myPanHandler);
 ````
 
-The instance is added to the element, you can find it at `$("#element").data("hammer")`. If the element has a Hammer instance, you can only change the options with the jQuery plugin. 
+The Hammer instance is stored at `$element.data("hammer")`.
+
