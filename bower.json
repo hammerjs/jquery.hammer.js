@@ -3,6 +3,7 @@
     "version": "2.0.0",
     "main": "jquery.hammer.js",
     "dependencies": {
-      "hammerjs": "2.x.x"
+      "hammerjs": "2.0.x",
+      "jquery": "2.1.x"
     }
 }
