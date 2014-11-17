@@ -2,7 +2,13 @@
     if (typeof define === 'function' && define.amd) {
         define(['jquery', 'hammerjs'], factory);
     } else if (typeof exports === 'object') {
-        factory(require('jquery'), require('hammerjs'));
+        module.exports = function (window) {
+            var hammerjsFactory = require('./3rd-party-loaders/hammerjs');
+            var jqueryFactory = require('./3rd-party-loaders/jquery');
+            var Hammer = hammerjsFactory(window);
+            var jQuery = window.jQuery || jqueryFactory(window);
+            return factory(jQuery, Hammer);
+        };
     } else {
         factory(jQuery, Hammer);
     }
