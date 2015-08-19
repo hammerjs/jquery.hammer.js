@@ -26,7 +26,7 @@
             originalEmit.call(this, type, data);
             var el = $(this.element);
             if(el.has(data.target).length) {
-               el = $(data.target);
+               el = el.find(data.target);
             }
             el.trigger({
                 type: type,
