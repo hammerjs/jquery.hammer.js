@@ -1,8 +1,8 @@
 (function(factory) {
     if (typeof define === 'function' && define.amd) {
         define(['jquery', 'hammerjs'], factory);
-    } else if (typeof exports === 'object') {
-        factory(require('jquery'), require('hammerjs'));
+    } else if (typeof module === 'object' && typeof module.exports === 'object') {
+        module.exports = factory(require('jquery'), require('hammerjs'));
     } else {
         factory(jQuery, Hammer);
     }
@@ -30,4 +30,8 @@
             });
         };
     })(Hammer.Manager.prototype.emit);
+    
+    //return original jquery module        
+    return $;
+
 }));
