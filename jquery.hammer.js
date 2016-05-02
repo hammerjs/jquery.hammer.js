@@ -24,7 +24,7 @@
     Hammer.Manager.prototype.emit = (function(originalEmit) {
         return function(type, data) {
             originalEmit.call(this, type, data);
-            $(this.element).trigger({
+            $(this.element).triggerHandler({
                 type: type,
                 gesture: data
             });
