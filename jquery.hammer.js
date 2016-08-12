@@ -1,10 +1,10 @@
 (function(factory) {
     if (typeof define === 'function' && define.amd) {
-        define(['jquery', 'hammerjs'], factory);
+        define(['$', 'hammerjs'], factory);
     } else if (typeof exports === 'object') {
-        factory(require('jquery'), require('hammerjs'));
+        factory(require('$'), require('hammerjs'));
     } else {
-        factory(jQuery, Hammer);
+        factory($, Hammer);
     }
 }(function($, Hammer) {
     function hammerify(el, options) {
@@ -20,7 +20,7 @@
         });
     };
 
-    // extend the emit method to also trigger jQuery events
+    // extend the emit method to also trigger jQuery or Zepto events
     Hammer.Manager.prototype.emit = (function(originalEmit) {
         return function(type, data) {
             originalEmit.call(this, type, data);
