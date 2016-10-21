@@ -24,10 +24,12 @@
     Hammer.Manager.prototype.emit = (function(originalEmit) {
         return function(type, data) {
             originalEmit.call(this, type, data);
-            $(this.element).trigger({
-                type: type,
-                gesture: data
-            });
+            if (!this.options.domEvents) {
+                $(this.element).trigger({
+                    type: type,
+                    gesture: data
+                });
+            }
         };
     })(Hammer.Manager.prototype.emit);
 }));
