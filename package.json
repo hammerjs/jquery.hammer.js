@@ -13,10 +13,10 @@
   "keywords": [
     "hammerjs",
     "jquery"
-  ],
+ ],
   "dependencies": {
     "hammerjs": "2.0.x",
-    "jquery": "2.1.x"
+    "jquery": "3.1.1"
   },
   "author": "J. Tangelder",
   "license": "MIT",
